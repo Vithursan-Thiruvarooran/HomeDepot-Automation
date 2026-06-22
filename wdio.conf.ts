@@ -4,8 +4,8 @@ export const config: WebdriverIO.Config = {
   // Runner Configuration
   // ====================
   // WebdriverIO supports running e2e tests as well as unit and component tests.
-  runner: "local",
-  tsConfigPath: "./tsconfig.json",
+  runner: 'local',
+  tsConfigPath: './tsconfig.json',
 
   //
   // ==================
@@ -22,11 +22,9 @@ export const config: WebdriverIO.Config = {
   // The path of the spec files will be resolved relative from the directory of
   // of the config file unless it's absolute.
   //
-  specs: ["src/specs/**/*.ts"],
+  specs: ['src/specs/**/*.ts'],
   // Patterns to exclude.
-  exclude: [
-    // 'path/to/excluded/files'
-  ],
+  exclude: ['src/specs/helpers/**'],
   //
   // ============
   // Capabilities
@@ -51,7 +49,9 @@ export const config: WebdriverIO.Config = {
   //
   capabilities: [
     {
-      browserName: "chrome",
+      browserName: 'chrome',
+      // 'goog:chromeOptions': { args: ['--headless', '--no-sandbox', '--disable-dev-shm-usage'] },
+      // 'wdio:chromedriverOptions': { binary: 'C:\\tools\\chromedriver.exe' },
     },
   ],
 
@@ -62,7 +62,7 @@ export const config: WebdriverIO.Config = {
   // Define all options that are relevant for the WebdriverIO instance here
   //
   // Level of logging verbosity: trace | debug | info | warn | error | silent
-  logLevel: "info",
+  logLevel: 'info',
   //
   // Set specific log levels per logger
   // loggers:
@@ -110,7 +110,7 @@ export const config: WebdriverIO.Config = {
   //
   // Make sure you have the wdio adapter package for the specific framework installed
   // before running any tests.
-  framework: "mocha",
+  framework: 'mocha',
 
   //
   // The number of times to retry the entire specfile when it fails as a whole
@@ -125,12 +125,12 @@ export const config: WebdriverIO.Config = {
   // Test reporter for stdout.
   // The only one supported by default is 'dot'
   // see also: https://webdriver.io/docs/dot-reporter
-  reporters: ["spec"],
+  reporters: ['spec'],
 
   // Options to be passed to Mocha.
   // See the full list at http://mochajs.org/
   mochaOpts: {
-    ui: "bdd",
+    ui: 'bdd',
     timeout: 60000,
   },
 
@@ -293,3 +293,4 @@ export const config: WebdriverIO.Config = {
   // afterAssertion: function(params) {
   // }
 };
+
