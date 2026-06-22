@@ -263,6 +263,41 @@ The correct product name is unconfirmed. The data-test ID for this product uses 
 
 ---
 
+**ID:** BUG-007
+**Title:** `mirage_user` sees a phantom cart badge of `1` on login despite an empty cart
+**Severity:** High
+**Status:** Open
+
+**Environment:**
+- User: `mirage_user` (only this user affected)
+- Browser: Chrome
+- Date Found: 2026-06-22
+
+**Test Case:** TC-05 — Initial Cart State
+
+**Description:**
+When `mirage_user` logs in, the cart badge immediately displays `1` even though no items have been added to the cart. Clicking the cart icon reveals an empty cart with no items. The phantom count of `1` persists throughout the session — when items are added the badge reads the correct quantity plus 1 extra (e.g. adding 1 item shows `2`, adding 3 shows `4`). The checkout flow completes correctly and only the actual items are present in the cart and order summary.
+
+**Steps to Reproduce:**
+1. Log in as `mirage_user`.
+2. Navigate to the products page.
+3. Observe the cart badge — it shows `1` without any items having been added.
+4. Click the cart icon.
+5. Observe the cart is empty.
+6. Return to the products page and add an item with qty 1.
+7. Observe the cart badge now shows `2` instead of `1`.
+
+**Expected Result:**
+The cart badge is not visible on login. The badge only appears and increments correctly as real items are added to the cart.
+
+**Actual Result:**
+The cart badge shows `1` immediately on login. It continues to over-count by 1 throughout the session, even though the cart contents and checkout totals are correct.
+
+**Notes / Evidence:**
+Only reproduced for `mirage_user`. The `swift_tester` and `buggy_agent` accounts show no badge on login. The phantom count does not correspond to any real cart item — it does not appear in the cart page, checkout preview, order summary, or order total. The issue appears to be a ghost cart state initialised for this user specifically, inflating the badge count without adding a real cart entry.
+
+---
+
 ## Resolved Bugs
 
 _No resolved bugs yet._
