@@ -151,7 +151,7 @@ Reproduced across all three test users. Quantity controls are functional, which 
 ---
 
 **ID:** BUG-004
-**Title:** "Sauce Labs Onesie" product has incorrect data-test IDs — missing `sauce-labs-` prefix
+**Title:** Multiple "Sauce Labs" products have incorrect data-test IDs — missing `sauce-labs-` prefix
 **Severity:** Medium
 **Status:** Open
 
@@ -163,29 +163,103 @@ Reproduced across all three test users. Quantity controls are functional, which 
 **Test Case:** TC-06 — Quantity Controls on Products Page, TC-07 — Add to Cart from Products Page
 
 **Description:**
-The data-test IDs for the quantity controls and "Add to Cart" button on the "Sauce Labs Onesie" product card do not follow the naming convention used by all other products. The `sauce-labs-` prefix is missing, meaning the IDs use `onesie` as the product identifier instead of `sauce-labs-onesie`. This breaks the consistent pattern and will cause any automation selectors targeting this product by its full name to fail.
+The data-test IDs for the quantity controls and "Add to Cart" button on several "Sauce Labs" product cards are missing the `sauce-labs-` prefix. This breaks the naming convention followed by the rest of the product catalogue and causes any automation selectors built dynamically from the full product name to fail to locate these products' controls.
+
+**Affected Products:**
+- Sauce Labs Onesie
+- Sauce Labs Backpack
+- Sauce Labs Bike Light
+- Sauce Labs Fleece Jacket
+
+**Unaffected Products (correct IDs):**
+- Sauce Labs Hoodie ✅
+- Sauce Labs Mug ✅
 
 **Steps to Reproduce:**
 1. Navigate to the products page.
-2. Inspect the DOM for the "Sauce Labs Onesie" product card.
+2. Inspect the DOM for each affected product card.
 3. Observe the `data-test` attributes on the quantity decrease button, quantity value input, quantity increase button, and the "Add to Cart" button.
 
 **Expected Result:**
-Data-test IDs follow the full product name convention used by all other products:
+Data-test IDs use the full product name, consistent with unaffected products. Examples:
 - `qty-decrease-sauce-labs-onesie`
-- `qty-value-sauce-labs-onesie`
-- `qty-increase-sauce-labs-onesie`
-- `add-to-cart-sauce-labs-onesie`
+- `qty-value-sauce-labs-backpack`
+- `qty-increase-sauce-labs-bike-light`
+- `add-to-cart-sauce-labs-fleece-jacket`
 
 **Actual Result:**
-Data-test IDs use a shortened product name, omitting the `sauce-labs-` prefix:
+Data-test IDs omit the `sauce-labs-` prefix. Examples:
 - `qty-decrease-onesie`
-- `qty-value-onesie`
-- `qty-increase-onesie`
-- `add-to-cart-onesie`
+- `qty-value-backpack`
+- `qty-increase-bike-light`
+- `add-to-cart-fleece-jacket`
 
 **Notes / Evidence:**
-All other products follow the full-name convention (e.g. `qty-decrease-sauce-labs-backpack`, `qty-decrease-sauce-labs-bike-light`). The "Sauce Labs Onesie" is the only product with truncated IDs. Any automation test that builds selectors dynamically from the product name will fail to locate this product's controls.
+4 of the 6 "Sauce Labs" products are affected. "Sauce Labs Hoodie" and "Sauce Labs Mug" correctly include the `sauce-labs-` prefix. Any automation test that builds selectors dynamically from the full product name will fail to locate the controls for the four affected products.
+
+---
+
+**ID:** BUG-005
+**Title:** `buggy_agent` user sees mismatched product images on the products listing page
+**Severity:** Medium
+**Status:** Open
+
+**Environment:**
+- User: `buggy_agent` (only this user affected)
+- Browser: Chrome
+- Date Found: 2026-06-22
+
+**Test Case:** TC-02 — Login, TC-08 — Product Detail Page State
+
+**Description:**
+When logged in as `buggy_agent`, the product images displayed on the products listing page do not match the product they are paired with. The product name, price, and other details are correct, but the images are mismatched across cards. Navigating to an individual product's detail page shows the correct image for that product.
+
+**Steps to Reproduce:**
+1. Log in as `buggy_agent`.
+2. Navigate to the products page.
+3. Observe the product images on the listing page — they do not correspond to the correct products.
+4. Click on any product to navigate to its detail page.
+5. Observe the product image on the detail page — it is correct.
+
+**Expected Result:**
+Product images on the listing page match the product name and details shown on the same card, consistent with what is displayed on the product detail page.
+
+**Actual Result:**
+Product images on the listing page are mismatched — each image appears to belong to a different product. The correct image is only shown once the user navigates to the product detail page.
+
+**Notes / Evidence:**
+Only reproduced for `buggy_agent`. The `swift_tester` and `mirage_user` accounts display correct images on the listing page. The issue appears to be specific to how product images are rendered on the listing page for this user, as the detail page correctly resolves the image.
+
+---
+
+**ID:** BUG-006
+**Title:** "Test.allTheThings() T-Shirt" product name appears incorrect — likely a placeholder or corrupted value
+**Severity:** Low
+**Status:** Open
+
+**Environment:**
+- User: `swift_tester`, `buggy_agent`, `mirage_user` (all users affected)
+- Browser: Chrome
+- Date Found: 2026-06-22
+
+**Test Case:** TC-03 — Category Filter, TC-07 — Add to Cart from Products Page
+
+**Description:**
+The product name "Test.allTheThings() T-Shirt" appears on the products listing page for all users. The name contains what looks like a test method invocation (`Test.allTheThings()`) rather than a real product name, suggesting it may be a placeholder, corrupted data, or a naming error. The expected product name is unknown but is likely something closer to "All The Things T-Shirt" or similar.
+
+**Steps to Reproduce:**
+1. Log in with any valid user.
+2. Navigate to the products page.
+3. Observe the product name "Test.allTheThings() T-Shirt" on the listing page.
+
+**Expected Result:**
+The product has a proper human-readable name (e.g. "All The Things T-Shirt") consistent with the naming conventions of other products in the catalogue.
+
+**Actual Result:**
+The product is displayed with the name "Test.allTheThings() T-Shirt", which contains a camelCase method-style invocation unlikely to be an intentional product name.
+
+**Notes / Evidence:**
+The correct product name is unconfirmed. The data-test ID for this product uses `all-the-things-t-shirt` (e.g. `add-to-cart-all-the-things-t-shirt`), which further suggests the display name is incorrect and the intended name is closer to "All The Things T-Shirt".
 
 ---
 

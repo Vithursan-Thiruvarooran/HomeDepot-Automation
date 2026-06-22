@@ -8,7 +8,13 @@ End-to-end automation tests for the SwiftShop QA Assessment application, written
 
 1. **A single e2e flow was expected.** The assignment was interpreted as requiring one end-to-end flow test covering all steps from login through to order confirmation. In practice, I would split this into smaller, focused tests for each functional area (login, filters, cart, checkout) and reserve the e2e flow for broader coverage across user journeys rather than deep validation of each step.
 2. **The `vault_locked` user is intentionally locked out.** The e2e checkout flow runs for 3 of the 4 available users (`swift_tester`, `buggy_agent`, `mirage_user`). The fourth user, `vault_locked`, cannot log in and was excluded from the e2e flow. It was assumed this user is intentionally locked out, so a separate login test (`login.vault_locked.ts`) was added to validate that the correct error message is displayed on login attempt.
-3. **The Sauce Labs Onesie data-test IDs are incorrect.** The data-test IDs for the Sauce Labs Onesie product do not follow the naming convention used by all other products — they omit the `sauce-labs-` prefix (e.g. `qty-value-onesie` instead of `qty-value-sauce-labs-onesie`). This was treated as a bug rather than intentional, and the automation was written against the expected correct IDs consistent with the rest of the product catalogue.
+3. **Several products have incorrect data-test IDs — missing the expected name prefix.** Four products omit part of their name from the `data-test` attribute on qty controls and the add-to-cart button, breaking the naming convention followed by the rest of the catalogue:
+   - `Sauce Labs Backpack` → e.g. `qty-value-backpack` instead of `qty-value-sauce-labs-backpack`
+   - `Sauce Labs Bike Light` → e.g. `qty-value-bike-light` instead of `qty-value-sauce-labs-bike-light`
+   - `Sauce Labs Fleece Jacket` → e.g. `qty-value-fleece-jacket` instead of `qty-value-sauce-labs-fleece-jacket`
+   - `Sauce Labs Onesie` → e.g. `qty-value-onesie` instead of `qty-value-sauce-labs-onesie`
+
+   This was treated as a bug (see BUG-004) rather than intentional. To work around it, `productsPage.ts` avoids slug-based selectors entirely. Instead, it reads the numeric `id` from each product's name element (e.g. `id="item-name-5"`) and uses that number to build reliable global selectors: `#qty-increase-5`, `#qty-value-5`, `#inventory-item-5 [data-test^="add-to-cart-"]`. This approach works regardless of whether a product's `data-test` slug is correct or truncated.
 
 ---
 

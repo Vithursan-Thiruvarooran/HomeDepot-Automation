@@ -1,5 +1,4 @@
 import { StorePage } from './storePage';
-import { toSlug } from '../utils/helpers';
 
 export interface Product {
   name: string;
@@ -34,24 +33,19 @@ class ProductsPage extends StorePage {
     return $$(this.productPriceSelector);
   }
 
-  productCard(id: number) {
-    return $(`[data-test="inventory-item-${id}"]`);
-  }
-
-  increaseQtyBtn(productName: string) {
-    return $(`[data-test="qty-increase-${toSlug(productName)}"]`);
-  }
-
-  decreaseQtyBtn(productName: string) {
-    return $(`[data-test="qty-decrease-${toSlug(productName)}"]`);
-  }
-
-  qtyNum(productName: string) {
-    return $(`[data-test="qty-value-${toSlug(productName)}"]`);
-  }
-
-  addToCartBtn(productName: string) {
-    return $(`[data-test="add-to-cart-${toSlug(productName)}"]`);
+  // Returns the numeric item ID shared by the name element and its qty controls
+  // e.g. "item-name-5" → "5". Returns null on pages without inventory-item-name IDs (e.g. detail page).
+  private async getItemNumber(productName: string): Promise<string | null> {
+    const names = await this.productNames;
+    for (const nameEl of names) {
+      if ((await nameEl.getText()) === productName) {
+        const id = await nameEl.getAttribute('id');
+        if (id?.startsWith('item-name-')) {
+          return id.replace('item-name-', '');
+        }
+      }
+    }
+    return null;
   }
 
   async getInventoryTitle() {
@@ -91,11 +85,13 @@ class ProductsPage extends StorePage {
   }
 
   async increaseQty(productName: string) {
-    await this.increaseQtyBtn(productName).click();
+    const num = await this.getItemNumber(productName);
+    await (num ? $(`#qty-increase-${num}`) : $('[data-test^="qty-increase-"]')).click();
   }
 
   async decreaseQty(productName: string) {
-    await this.decreaseQtyBtn(productName).click();
+    const num = await this.getItemNumber(productName);
+    await (num ? $(`#qty-decrease-${num}`) : $('[data-test^="qty-decrease-"]')).click();
   }
 
   async setQty(productName: string, qty: number) {
@@ -110,21 +106,27 @@ class ProductsPage extends StorePage {
   }
 
   async getQty(productName: string): Promise<number> {
-    const value = await this.qtyNum(productName).getText();
+    const num = await this.getItemNumber(productName);
+    const value = await (num ? $(`#qty-value-${num}`) : $('[data-test^="qty-value-"]')).getText();
     return Number(value);
   }
 
   async clickAddToCart(productName: string) {
-    await this.addToCartBtn(productName).click();
+    const num = await this.getItemNumber(productName);
+    await (num ? $(`#inventory-item-${num} [data-test^="add-to-cart-"]`) : $('[data-test^="add-to-cart-"]')).click();
   }
 
   async getAddToCartBtnTxt(productName: string) {
-    return await this.addToCartBtn(productName).getText();
+    const num = await this.getItemNumber(productName);
+    return (num ? $(`#inventory-item-${num} [data-test^="add-to-cart-"]`) : $('[data-test^="add-to-cart-"]')).getText();
   }
 
   async waitForAddToCartBtnTxt(productName: string, text: string) {
-    const success = await this.waitForText(this.addToCartBtn(productName), text);
-    return success;
+    const num = await this.getItemNumber(productName);
+    return this.waitForText(
+      num ? $(`#inventory-item-${num} [data-test^="add-to-cart-"]`) : $('[data-test^="add-to-cart-"]'),
+      text,
+    );
   }
 
   async clickProduct(productName: string) {
@@ -143,4 +145,3 @@ class ProductsPage extends StorePage {
 }
 
 export default new ProductsPage();
-
